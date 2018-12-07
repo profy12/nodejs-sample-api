@@ -9,11 +9,27 @@ const redis = require('redis');
 
 const app = express();
 
-let rs = redis.createClient();
+/*
+* We connect on Heroku Redis server
+*
+* If none we try to connect localy (dev env)
+*
+*/
+
+
+let rs = null;
+if (process.env.REDISTOGO_URL) {
+    // TODO: redistogo connection
+    let rtg  = require("url").parse(process.env.REDISTOGO_URL);
+    rs = redis.createClient(rtg.port, rtg.hostname);
+    rs.auth(rtg.auth.split(":")[1]);
+} else {
+    rs = redis.createClient();
+}
+
+//let rs = redis.createClient();
 
 /*
-* We connect on Redis server
-*
 * Evenemential is so beautiful, that if redis server is lost it will reconnect, calling theses two parts of code.
 */
 rs.on('connect', ()=>{
