@@ -83,6 +83,7 @@ app.get('/', (req,res)=>{
 })
 .get('/api/domain', (req,res)=>{
     let list = rs.smembers('domain.list');
+    console.log(list);
     res.send(JSON.stringify(list));
 });
 
