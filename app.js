@@ -19,7 +19,7 @@ const app = express();
 
 let rs = null;
 if (process.env.REDISTOGO_URL) {
-    // TODO: redistogo connection
+    console.log('Detected env var:' + process.env.REDISTOGO_URL);
     let rtg  = require("url").parse(process.env.REDISTOGO_URL);
     rs = redis.createClient(rtg.port, rtg.hostname);
     rs.auth(rtg.auth.split(":")[1]);
