@@ -80,6 +80,10 @@ app.get('/', (req,res)=>{
 .get('/api', (req,res)=>{
     let apiContent = fs.readFileSync('API.md','utf-8');
     res.send(markdown.toHTML(apiContent));
+})
+.get('/api/domain', (req,res)=>{
+    let list = rs.smembers('domain.list');
+    res.send(JSON.stringify(list));
 });
 
 /* 
