@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
 const redis = require('redis');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -58,6 +59,13 @@ app.use(morgan('combined', {stream: accessLogStream }));
 app.use(favicon('./public/favicons.png'));
 
 /*
+* body parser
+*/
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+
+/*
 * Defaut root with nothink, maybe some tests
 */
 app.get('/', (req,res)=>{
@@ -82,9 +90,24 @@ app.get('/', (req,res)=>{
     res.send(markdown.toHTML(apiContent));
 })
 .get('/api/domain', (req,res)=>{
-    let list = rs.smembers('domain.list');
-    console.log(list);
-    res.send(JSON.stringify(list));
+    let list = rs.smembers('domain.list',(err,reply)=>{
+        console.log(reply);
+        res.status(200).send(reply);
+    });
+})
+.post('/api/domain', (req,res)=>{
+    console.log(req.body.name);
+    let domain = req.body.name;
+    rs.sadd('domain.list',domain,(err,reply)=>{
+        console.log('reply: ' + reply)
+        res.status(201).send({message: 'ok'});
+    });
+})
+.delete('/api/domain/:domain', (req,res)=>{
+    console.log('delete ' + req.params.domain);
+    rs.srem('domain.list',req.params.domain,(err,reply)=>{
+        res.status(200).send({message: 'ok deleted'});
+    });
 });
 
 /* 
