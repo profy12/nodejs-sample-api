@@ -100,13 +100,26 @@ app.get('/', (req,res)=>{
     let domain = req.body.name;
     rs.sadd('domain.list',domain,(err,reply)=>{
         console.log('reply: ' + reply)
-        res.status(201).send({message: 'ok'});
+        if (err) {
+            res.status(404).send({message: err});
+        } else if (reply === 1){
+            res.status(201).send({message: 'ok'});
+        } else {
+            res.status(409).send({message: 'Already exist'});
+        }
     });
 })
 .delete('/api/domain/:domain', (req,res)=>{
     console.log('delete ' + req.params.domain);
     rs.srem('domain.list',req.params.domain,(err,reply)=>{
-        res.status(200).send({message: 'ok deleted'});
+        console.log('reply: ' + reply)
+        if (err){
+            res.status(404).send({message: err});
+        } else if (reply === 0){
+            res.status(409).send({message: 'Was already deleted'})
+        } else {
+            res.status(200).send({message: 'ok deleted'});
+        }
     });
 });
 
@@ -122,5 +135,5 @@ if (port == null || port == "") {
     port = 8000;
 }
 app.listen(port, ()=>{
-    console.log('App listening on port 3000');
+    console.log(`App listening on port ${port}`);
 });
