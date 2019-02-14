@@ -7,8 +7,10 @@ const path = require('path');
 const rfs = require('rotating-file-stream');
 const redis = require('redis');
 const bodyParser = require('body-parser');
-
+const { ZoneFile } = require('zone-file');
+const dateFormat = require('dateformat');
 const app = express();
+
 
 /*
 * We connect on Heroku Redis server
@@ -102,10 +104,34 @@ app.get('/', (req,res)=>{
         console.log('reply: ' + reply)
         if (err) {
             res.status(404).send({message: err});
-        } else if (reply === 1){
-            res.status(201).send({message: 'ok'});
-        } else {
+        } else if (reply === 0){
             res.status(409).send({message: 'Already exist'});
+        } else {
+            const today = new Date();
+            serial = dateFormat(today, "yyyymmdd") + "00";
+            //serial = dateNow.getFullYear + "" + dateNow.getMonth();
+            console.log(serial);
+            let zoneFileData = {
+                "$origin": domain,
+                "$ttl": 3600,
+                "soa": {
+                    "mname":"ns1.profy.fr.",
+                    "rname":"aurelien.bras.gmail.com",
+                    "serial": serial,
+                    "refresh": 3600,
+                    "retry": 600,
+                    "expire": 604800,
+                    "minimum": 86400
+                },
+                "a": [
+                    {"name":"@", "ip": "127.0.0.1"},
+                    {"name":"www", "ip": "127.0.0.1"}
+                ]
+            }
+            let zoneFile = new ZoneFile(zoneFileData);
+            console.log(zoneFile.toString());          
+            //fs.appendFile(name, )
+            res.status(201).send({message: 'ok'});
         }
     });
 })
