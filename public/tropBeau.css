@@ -1,0 +1,42 @@
+#domain-list {
+    color: red;
+    display: flex;
+    grid-area: content;
+}
+main {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        "head head"
+        "nav content"
+        "foot foot";
+}
+header {
+    grid-area: head;
+}
+nav {
+    grid-area: nav;
+}
+footer {
+    grid-area: foot;
+}
+.domains {
+    color: darkorange;
+    border: 1px;
+    padding: 5px;
+    margin: 5px;
+}
+.domains-hover {
+    /*color: white;*/
+    color: darkorange;
+    background-clip: padding-box;
+    border: 1px;
+    border-color: darkorange;
+    border-style: solid;
+    /*background-color: darkorange;*/
+    border-radius: 5%;
+    padding: 5px;
+    margin: 5px;
+    /*margin: 0px;*/
+}
