@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const { ZoneFile } = require('zone-file');
 const dateFormat = require('dateformat');
 const app = express();
+const cors = require('cors');
 
 
 /*
@@ -56,6 +57,13 @@ let accessLogStream = rfs(path.join(__dirname,'log/access.log'), {
 app.use(morgan('combined', {stream: accessLogStream }));
 
 /*
+ * Enable Cross origin requests
+ */
+
+app.use(cors());
+
+
+/*
 * Basic favicon service
 */
 app.use(favicon('./public/favicons.png'));
@@ -91,16 +99,16 @@ app.get('/', (req,res)=>{
     let apiContent = fs.readFileSync('API.md','utf-8');
     res.send(markdown.toHTML(apiContent));
 })
-.get('/api/domain', (req,res)=>{
-    let list = rs.smembers('domain.list',(err,reply)=>{
+.get('/api/zone', (req,res)=>{
+    let list = rs.smembers('zone.list',(err,reply)=>{
         console.log(reply);
         res.status(200).send(reply);
     });
 })
-.post('/api/domain', (req,res)=>{
+.post('/api/zone', (req,res)=>{
     console.log(req.body.name);
-    let domain = req.body.name;
-    rs.sadd('domain.list',domain,(err,reply)=>{
+    let zone = req.body.name;
+    rs.sadd('zone.list',zone,(err,reply)=>{
         console.log('reply: ' + reply)
         if (err) {
             res.status(404).send({message: err});
@@ -112,7 +120,7 @@ app.get('/', (req,res)=>{
             //serial = dateNow.getFullYear + "" + dateNow.getMonth();
             console.log(serial);
             let zoneFileData = {
-                "$origin": domain,
+                "$origin": zone,
                 "$ttl": 3600,
                 "soa": {
                     "mname":"ns1.profy.fr.",
@@ -135,9 +143,9 @@ app.get('/', (req,res)=>{
         }
     });
 })
-.delete('/api/domain/:domain', (req,res)=>{
-    console.log('delete ' + req.params.domain);
-    rs.srem('domain.list',req.params.domain,(err,reply)=>{
+.delete('/api/zone/:zone', (req,res)=>{
+    console.log('delete ' + req.params.zone);
+    rs.srem('zone.list',req.params.zone,(err,reply)=>{
         console.log('reply: ' + reply)
         if (err){
             res.status(404).send({message: err});

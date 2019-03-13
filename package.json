@@ -6,6 +6,7 @@
   "author": "Aurelien Bras",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "dateformat": "^3.0.3",
     "express": "^4.16.4",
     "markdown": "^0.5.0",
