@@ -7,7 +7,7 @@ const path = require('path');
 const rfs = require('rotating-file-stream');
 const redis = require('redis');
 const bodyParser = require('body-parser');
-const { ZoneFile } = require('zone-file');
+const { ZoneFile, makeZoneFile, parseZoneFile } = require('zone-file');
 const dateFormat = require('dateformat');
 const app = express();
 const cors = require('cors');
@@ -137,10 +137,25 @@ app.get('/', (req,res)=>{
                 ]
             }
             let zoneFile = new ZoneFile(zoneFileData);
-            console.log(zoneFile.toString());          
-            //fs.appendFile(name, )
-            res.status(201).send({message: 'ok'});
+            const zoneFileText = makeZoneFile(zoneFile);
+            console.log(zoneFile.toString());        
+            fs.writeFile(zone, zoneFile, (err)=>{
+                if (err) res.status(503).send({message: 'failed to write zone file'});
+                res.status(201).send({message: 'ok'});
+            });
         }
+    });
+})
+.get('/api/zone/:zone', (req,res)=>{
+    const zone = req.params.zone;
+    console.log(`get information about ${zone}`);
+    fs.readFile(zone, 'utf-8', function(err, data){
+        if (err) res.status(503).send({message: 'unable to load zone file Data'});
+        console.log('Loaded data file : ');
+        console.log(data);
+        let zoneFileJson = parseZoneFile(data);
+        //console.log(zoneFile.toString());
+        res.status(200).send(zoneFileJson);
     });
 })
 .delete('/api/zone/:zone', (req,res)=>{
